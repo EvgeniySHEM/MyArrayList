@@ -8,6 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Реализация интерфейса MyList с изменяемым размером массива.
+ * Каждый элемент находится на определенном индексе этого массива, индексация начинается с 0.
  * Реализует операции со списком интерфейса MyList и разрешает все элементы, включая нулевые.
  * Не является потокобезопасным.
  *
@@ -44,6 +45,7 @@ public class MyArrayList<E> implements MyList<E> {
      * Добавляет указанный элемент в конец этого списка.
      *
      * @param element - элемент, который будет добавлен в этот список
+     * @throws ArrayIndexOutOfBoundsException - если вместимость может превысить Integer.MAX_VALUE.
      */
     public void add(E element) {
         checkCapacity(size);
@@ -55,6 +57,7 @@ public class MyArrayList<E> implements MyList<E> {
      *
      * @param index   - индекс, на который будет добавлен элемент.
      * @param element - элемент, который будет добавлен в этот список.
+     * @throws ArrayIndexOutOfBoundsException - если вместимость может превысить Integer.MAX_VALUE.
      */
     public void add(int index, E element) {
         Objects.checkIndex(index, size);
@@ -70,6 +73,10 @@ public class MyArrayList<E> implements MyList<E> {
      * @param minCapacity – необходимая минимальная емкость.
      */
     private void checkCapacity(int minCapacity) {
+        long checkSize = minCapacity;
+        if (checkSize + 1 > Integer.MAX_VALUE) {
+            throw new ArrayIndexOutOfBoundsException("Capacity there can't be more Integer.MAX_VALUE");
+        }
         if (minCapacity == elements.length) {
             increasedCapacity(minCapacity + 1);
         }
@@ -90,6 +97,18 @@ public class MyArrayList<E> implements MyList<E> {
         elements = Arrays.copyOf(elements, newCapacity);
     }
 
+    /**
+     * Возвращает элемент в указанной позиции в этом списке.
+     *
+     * @param index – индекс возвращаемого элемента.
+     * @return - элемент в указанной позиции в этом списке.
+     * @throws IndexOutOfBoundsException – если индекс выходит за пределы диапазона (index < 0 || index >= size())
+     */
+    @Override
+    public E get(int index) {
+        Objects.checkIndex(index, size);
+        return (E) elements[index];
+    }
 
     /**
      * Возвращает первое вхождение указанного элемента из этого списка, если оно присутствует,
@@ -198,28 +217,27 @@ public class MyArrayList<E> implements MyList<E> {
      * Все элементы в этом диапазоне должны быть взаимно сопоставимы
      * (то есть e1.compareTo(e2) не должно вызывать исключение ClassCastException
      * для любых элементов e1 и e2 в массиве).
-     *
+     * <p>
      * Для сортировки используется алгоритм быстрой сортировки.
      *
-     * @param fromIndex - начальный индекс диапазона сортировки(включительно).
-     * @param toIndex   - конечный индекс диапазона сортировки(включительно).
+     * @param fromIndex  - начальный индекс диапазона сортировки(включительно).
+     * @param toIndex    - конечный индекс диапазона сортировки(включительно).
      * @param comparator - Comparator для определения сортировки этого списка.
-     *
-     * @throws ClassCastException — если массив содержит элементы,
-     * которые не являются взаимно сопоставимыми (например, строки и целые числа).
-     * @throws ArrayIndexOutOfBoundsException  - если указанные индексы выходят за границы этого списка.
-     * @throws IllegalArgumentException - если fromIndex > toIndex.
+     * @throws ClassCastException             — если массив содержит элементы,
+     *                                        которые не являются взаимно сопоставимыми (например, строки и целые числа).
+     * @throws ArrayIndexOutOfBoundsException - если указанные индексы выходят за границы этого списка.
+     * @throws IllegalArgumentException       - если fromIndex > toIndex.
      */
 
     @Override
     public void sort(int fromIndex, int toIndex, Comparator<? super E> comparator) {
-        if(fromIndex < 0 || toIndex >= size) {
+        if (fromIndex < 0 || toIndex >= size) {
             throw new IllegalArgumentException("The specified indexes go beyond the boundaries of this list");
         }
-        if(fromIndex > toIndex) {
+        if (fromIndex > toIndex) {
             throw new IllegalArgumentException("fromIndex there can't be more toIndex");
         }
-        if(fromIndex == toIndex || elements.length <= 1) {
+        if (fromIndex == toIndex || elements.length <= 1) {
             return;
         }
         E[] sortArr = (E[]) elements;
@@ -234,26 +252,25 @@ public class MyArrayList<E> implements MyList<E> {
      * Более того, все элементы в этом диапазоне должны быть взаимно сопоставимы
      * (то есть e1.compareTo(e2) не должно вызывать исключение ClassCastException
      * для любых элементов e1 и e2 в массиве).
-     *
+     * <p>
      * Для сортировки используется алгоритм быстрой сортировки.
      *
      * @param fromIndex - начальный индекс диапазона сортировки(включительно).
      * @param toIndex   - конечный индекс диапазона сортировки(включительно).
-     *
-     * @throws ClassCastException — если массив содержит элементы,
-     * которые не являются взаимно сопоставимыми (например, строки и целые числа).
-     * @throws ArrayIndexOutOfBoundsException  - если указанные индексы выходят за границы этого списка.
-     * @throws IllegalArgumentException - если fromIndex > toIndex.
+     * @throws ClassCastException             — если массив содержит элементы,
+     *                                        которые не являются взаимно сопоставимыми (например, строки и целые числа).
+     * @throws ArrayIndexOutOfBoundsException - если указанные индексы выходят за границы этого списка.
+     * @throws IllegalArgumentException       - если fromIndex > toIndex.
      */
     @Override
     public void sort(int fromIndex, int toIndex) {
-        if(fromIndex < 0 || toIndex >= size) {
-            throw new ArrayIndexOutOfBoundsException ("The specified indexes go beyond the boundaries of this list");
+        if (fromIndex < 0 || toIndex >= size) {
+            throw new ArrayIndexOutOfBoundsException("The specified indexes go beyond the boundaries of this list");
         }
-        if(fromIndex > toIndex) {
+        if (fromIndex > toIndex) {
             throw new IllegalArgumentException("fromIndex there can't be more toIndex");
         }
-        if(fromIndex == toIndex || elements.length <= 1) {
+        if (fromIndex == toIndex || elements.length <= 1) {
             return;
         }
         E[] sortArr = (E[]) elements;

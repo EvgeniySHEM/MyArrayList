@@ -12,6 +12,8 @@ public class App {
         list.add(2);
         list.add(5);
         list.add(2);
+        System.out.println(list);
+
 
 
 
