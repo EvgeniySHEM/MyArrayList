@@ -203,6 +203,12 @@ public class MyArrayList<E> implements MyList<E> {
      *
      * @param fromIndex - начальный индекс диапазона сортировки(включительно).
      * @param toIndex   - конечный индекс диапазона сортировки(включительно).
+     * @param comparator - Comparator для определения сортировки этого списка.
+     *
+     * @throws ClassCastException — если массив содержит элементы,
+     * которые не являются взаимно сопоставимыми (например, строки и целые числа).
+     * @throws ArrayIndexOutOfBoundsException  - если указанные индексы выходят за границы этого списка.
+     * @throws IllegalArgumentException - если fromIndex > toIndex.
      */
 
     @Override
@@ -210,7 +216,10 @@ public class MyArrayList<E> implements MyList<E> {
         if(fromIndex < 0 || toIndex >= size) {
             throw new IllegalArgumentException("The specified indexes go beyond the boundaries of this list");
         }
-        if(fromIndex >= toIndex || elements.length <= 1) {
+        if(fromIndex > toIndex) {
+            throw new IllegalArgumentException("fromIndex there can't be more toIndex");
+        }
+        if(fromIndex == toIndex || elements.length <= 1) {
             return;
         }
         E[] sortArr = (E[]) elements;
@@ -233,13 +242,18 @@ public class MyArrayList<E> implements MyList<E> {
      *
      * @throws ClassCastException — если массив содержит элементы,
      * которые не являются взаимно сопоставимыми (например, строки и целые числа).
+     * @throws ArrayIndexOutOfBoundsException  - если указанные индексы выходят за границы этого списка.
+     * @throws IllegalArgumentException - если fromIndex > toIndex.
      */
     @Override
     public void sort(int fromIndex, int toIndex) {
         if(fromIndex < 0 || toIndex >= size) {
-            throw new IllegalArgumentException("The specified indexes go beyond the boundaries of this list");
+            throw new ArrayIndexOutOfBoundsException ("The specified indexes go beyond the boundaries of this list");
         }
-        if(fromIndex >= toIndex || elements.length <= 1) {
+        if(fromIndex > toIndex) {
+            throw new IllegalArgumentException("fromIndex there can't be more toIndex");
+        }
+        if(fromIndex == toIndex || elements.length <= 1) {
             return;
         }
         E[] sortArr = (E[]) elements;
