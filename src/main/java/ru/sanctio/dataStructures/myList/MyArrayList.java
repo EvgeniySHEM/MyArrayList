@@ -8,10 +8,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Реализация интерфейса MyList с изменяемым размером массива.
- * Реализует операции со списком и разрешает все элементы, включая нулевые.
+ * Реализует операции со списком интерфейса MyList и разрешает все элементы, включая нулевые.
  * Не является потокобезопасным.
  *
- * @author Captain America
+ * @author Sharychenkov Eugene
  */
 public class MyArrayList<E> implements MyList<E> {
 
@@ -192,11 +192,10 @@ public class MyArrayList<E> implements MyList<E> {
     }
 
     /**
-     * Сортирует указанный диапазон указанного списка объектов в порядке возрастания
+     * Сортирует указанный диапазон этого списка объектов в порядке возрастания
      * в соответствии с указанным Comparator'ом.
      * Если fromIndex>=toIndex, диапазон для сортировки пуст.
-     * Все элементы в этом диапазоне должны реализовывать интерфейс Comparable.
-     * Более того, все элементы в этом диапазоне должны быть взаимно сопоставимы
+     * Все элементы в этом диапазоне должны быть взаимно сопоставимы
      * (то есть e1.compareTo(e2) не должно вызывать исключение ClassCastException
      * для любых элементов e1 и e2 в массиве).
      *
@@ -208,12 +207,18 @@ public class MyArrayList<E> implements MyList<E> {
 
     @Override
     public void sort(int fromIndex, int toIndex, Comparator<? super E> comparator) {
+        if(fromIndex < 0 || toIndex >= size) {
+            throw new IllegalArgumentException("The specified indexes go beyond the boundaries of this list");
+        }
+        if(fromIndex >= toIndex || elements.length <= 1) {
+            return;
+        }
         E[] sortArr = (E[]) elements;
         quickSort(sortArr, fromIndex, toIndex, comparator);
     }
 
     /**
-     * Сортирует указанный диапазон указанного списка объектов в порядке возрастания
+     * Сортирует указанный диапазон этого списка объектов в порядке возрастания
      * в соответствии с естественным порядком его элементов.
      * Если fromIndex>=toIndex, диапазон для сортировки пуст.
      * Все элементы в этом диапазоне должны реализовывать интерфейс Comparable.
@@ -225,19 +230,25 @@ public class MyArrayList<E> implements MyList<E> {
      *
      * @param fromIndex - начальный индекс диапазона сортировки(включительно).
      * @param toIndex   - конечный индекс диапазона сортировки(включительно).
+     *
+     * @throws ClassCastException — если массив содержит элементы,
+     * которые не являются взаимно сопоставимыми (например, строки и целые числа).
      */
     @Override
     public void sort(int fromIndex, int toIndex) {
+        if(fromIndex < 0 || toIndex >= size) {
+            throw new IllegalArgumentException("The specified indexes go beyond the boundaries of this list");
+        }
+        if(fromIndex >= toIndex || elements.length <= 1) {
+            return;
+        }
         E[] sortArr = (E[]) elements;
         quickSort(sortArr, fromIndex, toIndex);
     }
 
     private void quickSort(E[] sortArr, int low, int high) {
-        //завершить, если массив пуст или уже нечего делить
-        if (sortArr.length == 0 || low >= high) return;
 
         //выбираем опорный элемент
-//        int middle = low + (high - low) / 2;
         int middle = random.nextInt(low, high + 1);
         E border = sortArr[middle];
 
@@ -261,11 +272,8 @@ public class MyArrayList<E> implements MyList<E> {
     }
 
     private void quickSort(E[] sortArr, int low, int high, Comparator<? super E> comparator) {
-        //завершить, если массив пуст или уже нечего делить
-        if (sortArr.length == 0 || low >= high) return;
 
         //выбираем опорный элемент
-//        int middle = low + (high - low) / 2;
         int middle = random.nextInt(low, high + 1);
         E border = sortArr[middle];
 
