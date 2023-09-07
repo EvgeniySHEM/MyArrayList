@@ -327,6 +327,16 @@ public class MyArrayList<E> implements MyList<E> {
         if (high > i) quickSort(sortArr, i, high, comparator);
     }
 
+    /**
+     * Сравнивает указанный объект с этим списком на предмет равенства.
+     * Возвращает true тогда и только тогда, когда указанный объект также является списком,
+     * оба списка имеют одинаковый размер и все соответствующие пары элементов в двух списках равны.
+     * (Два элемента e1 и e2 равны, если Objects.equals(e1, e2).)
+     * Другими словами, два списка считаются равными, если они содержат одни и те же элементы в одном и том же порядке.
+     * @param o - объект для сравнения
+     * @return - true, если переданный объект и этот список равны.
+     */
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -335,6 +345,10 @@ public class MyArrayList<E> implements MyList<E> {
         return size == that.size && Arrays.equals(elements, that.elements);
     }
 
+    /**
+     * Возвращает значение хэш-кода для этого списка.
+     * @return - значение хэш-кода для этого списка.
+     */
     @Override
     public int hashCode() {
         int result = Objects.hash(size);
@@ -342,6 +356,13 @@ public class MyArrayList<E> implements MyList<E> {
         return result;
     }
 
+    /**
+     * Возвращает строковое представление этой коллекции.
+     * Строковое представление состоит из списка элементов коллекции в том порядке, в котором они хранятся в списке,
+     * заключенного в фигурные скобки («{}»). Соседние элементы разделяются символами ", " (запятая и пробел).
+     * Элементы преобразуются в строки, как с помощью StringBuilder.
+     * @return - строковое представление этой коллекции.
+     */
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
