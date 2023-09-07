@@ -1,21 +1,27 @@
 package ru.sanctio.dataStructures.myList;
 
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Реализация интерфейса List с изменяемым размером массива.
- * Реализует ???все необязательные операции??? со списком и разрешает все элементы, включая нулевые.
- * @author Captain America
+ * Реализация интерфейса MyList с изменяемым размером массива.
+ * Реализует операции со списком и разрешает все элементы, включая нулевые.
+ * Не является потокобезопасным.
  *
+ * @author Captain America
  */
 public class MyArrayList<E> implements MyList<E> {
 
     private Object[] elements;
     private int size;
     private static final int DEFAULT_CAPACITY = 10;
+    private static Random random = ThreadLocalRandom.current();
 
     /**
-     * Создает пустой список с начальной емкостью десять.
+     * Создает пустой список с начальной емкостью равной десяти.
      */
     public MyArrayList() {
         elements = new Object[DEFAULT_CAPACITY];
@@ -23,6 +29,7 @@ public class MyArrayList<E> implements MyList<E> {
 
     /**
      * Создает пустой список с указанной начальной емкостью.
+     *
      * @param initialCapacity – начальная емкость списка.
      * @throws IllegalArgumentException – если заданная начальная емкость отрицательна
      */
@@ -35,6 +42,7 @@ public class MyArrayList<E> implements MyList<E> {
 
     /**
      * Добавляет указанный элемент в конец этого списка.
+     *
      * @param element - элемент, который будет добавлен в этот список
      */
     public void add(E element) {
@@ -44,11 +52,12 @@ public class MyArrayList<E> implements MyList<E> {
 
     /**
      * Добавляет указанный элемент на указанный индекс.
-     * @param element - элемент, который будет добавлен в этот список
-     * @throws IndexOutOfBoundsException - если заданный индекс вышел за рамки этого списка.
+     *
+     * @param index   - индекс, на который будет добавлен элемент.
+     * @param element - элемент, который будет добавлен в этот список.
      */
     public void add(int index, E element) {
-        rangeCheckForAdd(index);
+        Objects.checkIndex(index, size);
         checkCapacity(size);
         System.arraycopy(elements, index, elements, index + 1, size - index);
         elements[index] = element;
@@ -57,6 +66,7 @@ public class MyArrayList<E> implements MyList<E> {
 
     /**
      * Проверяет возможность добавить новый элемент в этот список.
+     *
      * @param minCapacity – необходимая минимальная емкость.
      */
     private void checkCapacity(int minCapacity) {
@@ -68,6 +78,7 @@ public class MyArrayList<E> implements MyList<E> {
     /**
      * Увеличивает емкость, чтобы гарантировать, что она может содержать как минимум количество элементов,
      * указанное аргументом минимальной емкости.
+     *
      * @param minCapacity – необходимая минимальная емкость.
      */
     private void increasedCapacity(int minCapacity) {
@@ -79,51 +90,92 @@ public class MyArrayList<E> implements MyList<E> {
         elements = Arrays.copyOf(elements, newCapacity);
     }
 
-    private void rangeCheckForAdd(int index) {
-        if (index >= elements.length || index < 0) {
-            throw new IndexOutOfBoundsException("Index: " + index + " - has gone beyond the scope of this list");
+
+    /**
+     * Возвращает первое вхождение указанного элемента из этого списка, если оно присутствует,
+     * если элемент отсутствует в этом списке, вернет null.
+     *
+     * @param element - элемент, который нужно найти в этом списке, если он присутствует.
+     * @return - первое вхождение указанного элемента из этого списка.
+     * @throws NullPointerException - если указанная ссылка на объект равна нулю.
+     */
+    public E get(E element) {
+        Objects.requireNonNull(element);
+        if (size == 0) {
+            return null;
         }
+        for (int i = 0; i < size; i++) {
+            if (elements[i] != null && elements[i].equals(element)) {
+                return element;
+            }
+        }
+        return null;
     }
 
-//
-//    public E get(int index) {
-//        rangeCheck(index);
-//        return (E) elements[index];
-//    }
-//
-//    public E remove(int index) {
-//        rangeCheck(index);
-//        E oldValue = (E) elements[index];
-//        int numMoved = size - index - 1;
-//        if (numMoved > 0) {
-//            System.arraycopy(elements, index + 1, elements, index, numMoved);
-//        }
-//        elements[--size] = null;
-//        return oldValue;
-//    }
-//
-//    public boolean remove(Object o) {
-//        if (o == null) {
-//            for (int i = 0; i < size; i++) {
-//                if (elements[i] == null) {
-//                    remove(i);
-//                    return true;
-//                }
-//            }
-//        } else {
-//            for (int i = 0; i < size; i++) {
-//                if (o.equals(elements[i])) {
-//                    remove(i);
-//                    return true;
-//                }
-//            }
-//        }
-//        return false;
-//    }
-//
+    /**
+     * Удаляет первое вхождение указанного элемента из этого списка, если оно присутствует.
+     * Если список не содержит элемента, он не изменяется.
+     *
+     * @param element - элемент, который нужно удалить из этого списка, если он присутствует
+     * @return - true, если этот список содержит указанный элемент
+     * (или, что, то же самое, если этот список изменился в результате вызова).
+     */
+    public boolean remove(E element) {
+        if (element == null) {
+            for (int i = 0; i < size; i++) {
+                if (elements[i] == null) {
+                    fastRemove(i);
+                    return true;
+                }
+            }
+        } else {
+            for (int i = 0; i < size; i++) {
+                if (element.equals(elements[i])) {
+                    fastRemove(i);
+                    return true;
+                }
+            }
+
+        }
+        return false;
+    }
+
+    private void fastRemove(int i) {
+        int lastIndex = size - 1;
+        if (lastIndex > i) {
+            System.arraycopy(elements, i + 1, elements, i, lastIndex - i);
+        }
+        size = lastIndex;
+        elements[lastIndex] = null;
+    }
+
+    /**
+     * Удаляет все элементы из этого списка.
+     * Список будет пуст и будет иметь емкость равной десяти, после возврата этого вызова.
+     */
+    public void clear() {
+        elements = new Object[DEFAULT_CAPACITY];
+        size = 0;
+    }
+
+    /**
+     * Заменяет элемент в указанной позиции в этом списке указанным элементом.
+     *
+     * @param index   индекс элемента для замены
+     * @param element элемент, который будет сохранен в указанной позиции
+     * @return элемент, ранее находившийся в указанной позиции
+     * @throws IndexOutOfBoundsException - если индекс выходит за пределы диапазона (индекс < 0 || индекс >= размер())
+     */
+    public E set(int index, E element) {
+        Objects.checkIndex(index, size);
+        E oldValue = (E) elements[index];
+        elements[index] = element;
+        return oldValue;
+    }
 
     /**
      * Проверяет количество элементов в этом списке.
+     *
      * @return - количество элементов в этом списке.
      */
     public int size() {
@@ -132,16 +184,137 @@ public class MyArrayList<E> implements MyList<E> {
 
     /**
      * Проверяет отсутствие элементов в этом списке.
+     *
      * @return - true, если этот список не содержит элементов.
      */
     public boolean isEmpty() {
         return size == 0;
     }
 
+    /**
+     * Сортирует указанный диапазон указанного списка объектов в порядке возрастания
+     * в соответствии с указанным Comparator'ом.
+     * Если fromIndex>=toIndex, диапазон для сортировки пуст.
+     * Все элементы в этом диапазоне должны реализовывать интерфейс Comparable.
+     * Более того, все элементы в этом диапазоне должны быть взаимно сопоставимы
+     * (то есть e1.compareTo(e2) не должно вызывать исключение ClassCastException
+     * для любых элементов e1 и e2 в массиве).
+     *
+     * Для сортировки используется алгоритм быстрой сортировки.
+     *
+     * @param fromIndex - начальный индекс диапазона сортировки(включительно).
+     * @param toIndex   - конечный индекс диапазона сортировки(включительно).
+     */
 
-    private void rangeCheck(int index) {
-        if (index >= elements.length) {
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+    @Override
+    public void sort(int fromIndex, int toIndex, Comparator<? super E> comparator) {
+        E[] sortArr = (E[]) elements;
+        quickSort(sortArr, fromIndex, toIndex, comparator);
+    }
+
+    /**
+     * Сортирует указанный диапазон указанного списка объектов в порядке возрастания
+     * в соответствии с естественным порядком его элементов.
+     * Если fromIndex>=toIndex, диапазон для сортировки пуст.
+     * Все элементы в этом диапазоне должны реализовывать интерфейс Comparable.
+     * Более того, все элементы в этом диапазоне должны быть взаимно сопоставимы
+     * (то есть e1.compareTo(e2) не должно вызывать исключение ClassCastException
+     * для любых элементов e1 и e2 в массиве).
+     *
+     * Для сортировки используется алгоритм быстрой сортировки.
+     *
+     * @param fromIndex - начальный индекс диапазона сортировки(включительно).
+     * @param toIndex   - конечный индекс диапазона сортировки(включительно).
+     */
+    @Override
+    public void sort(int fromIndex, int toIndex) {
+        E[] sortArr = (E[]) elements;
+        quickSort(sortArr, fromIndex, toIndex);
+    }
+
+    private void quickSort(E[] sortArr, int low, int high) {
+        //завершить, если массив пуст или уже нечего делить
+        if (sortArr.length == 0 || low >= high) return;
+
+        //выбираем опорный элемент
+//        int middle = low + (high - low) / 2;
+        int middle = random.nextInt(low, high + 1);
+        E border = sortArr[middle];
+
+        //разделияем на подмассивы и меняем местами
+        int i = low, j = high;
+        while (i <= j) {
+            while (((Comparable<E>) sortArr[i]).compareTo(border) < 0) i++;
+            while (((Comparable<E>) sortArr[j]).compareTo(border) > 0) j--;
+            if (i <= j) {
+                E swap = sortArr[i];
+                sortArr[i] = sortArr[j];
+                sortArr[j] = swap;
+                i++;
+                j--;
+            }
         }
+
+        //рекурсия для сортировки левой и правой части
+        if (low < j) quickSort(sortArr, low, j);
+        if (high > i) quickSort(sortArr, i, high);
+    }
+
+    private void quickSort(E[] sortArr, int low, int high, Comparator<? super E> comparator) {
+        //завершить, если массив пуст или уже нечего делить
+        if (sortArr.length == 0 || low >= high) return;
+
+        //выбираем опорный элемент
+//        int middle = low + (high - low) / 2;
+        int middle = random.nextInt(low, high + 1);
+        E border = sortArr[middle];
+
+        //разделияем на подмассивы и меняем местами
+        int i = low, j = high;
+        while (i <= j) {
+            while (comparator.compare(sortArr[i], border) < 0) i++;
+            while (comparator.compare(sortArr[j], border) > 0) j--;
+            if (i <= j) {
+                E swap = sortArr[i];
+                sortArr[i] = sortArr[j];
+                sortArr[j] = swap;
+                i++;
+                j--;
+            }
+        }
+
+        //рекурсия для сортировки левой и правой части
+        if (low < j) quickSort(sortArr, low, j, comparator);
+        if (high > i) quickSort(sortArr, i, high, comparator);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MyArrayList<?> that = (MyArrayList<?>) o;
+        return size == that.size && Arrays.equals(elements, that.elements);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(size);
+        result = 31 * result + Arrays.hashCode(elements);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{ ");
+        for (int i = 0; i < size; i++) {
+            if (i < size - 1) {
+                stringBuilder.append(elements[i]).append(", ");
+            } else {
+                stringBuilder.append(elements[i]);
+            }
+        }
+        stringBuilder.append(" }");
+        return stringBuilder.toString();
     }
 }
