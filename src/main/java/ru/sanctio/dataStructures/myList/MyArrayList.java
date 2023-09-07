@@ -8,8 +8,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Реализация интерфейса MyList с изменяемым размером массива.
- * Каждый элемент находится на определенном индексе этого массива, индексация начинается с 0.
- * Реализует операции со списком интерфейса MyList и разрешает все элементы, включая нулевые.
+ * Каждый элемент находится на определенном индексе этого массива, индексация начинается с нуля.
+ * Реализует операции со списком интерфейса MyList и разрешает все элементы, включая null значения.
  * Не является потокобезопасным.
  *
  * @author Sharychenkov Eugene
@@ -19,7 +19,7 @@ public class MyArrayList<E> implements MyList<E> {
     private Object[] elements;
     private int size;
     private static final int DEFAULT_CAPACITY = 10;
-    private static Random random = ThreadLocalRandom.current();
+    private static final Random random = ThreadLocalRandom.current();
 
     /**
      * Создает пустой список с начальной емкостью равной десяти.
@@ -31,8 +31,8 @@ public class MyArrayList<E> implements MyList<E> {
     /**
      * Создает пустой список с указанной начальной емкостью.
      *
-     * @param initialCapacity – начальная емкость списка.
-     * @throws IllegalArgumentException – если заданная начальная емкость отрицательна
+     * @param initialCapacity начальная емкость списка.
+     * @throws IllegalArgumentException если заданная начальная емкость отрицательна
      */
     public MyArrayList(int initialCapacity) {
         if (initialCapacity < 0) {
@@ -44,8 +44,8 @@ public class MyArrayList<E> implements MyList<E> {
     /**
      * Добавляет указанный элемент в конец этого списка.
      *
-     * @param element - элемент, который будет добавлен в этот список
-     * @throws ArrayIndexOutOfBoundsException - если вместимость может превысить Integer.MAX_VALUE.
+     * @param element элемент, который будет добавлен в этот список
+     * @throws ArrayIndexOutOfBoundsException если вместимость может превысить Integer.MAX_VALUE.
      */
     public void add(E element) {
         checkCapacity(size);
@@ -55,9 +55,10 @@ public class MyArrayList<E> implements MyList<E> {
     /**
      * Добавляет указанный элемент на указанный индекс.
      *
-     * @param index   - индекс, на который будет добавлен элемент.
-     * @param element - элемент, который будет добавлен в этот список.
-     * @throws ArrayIndexOutOfBoundsException - если вместимость может превысить Integer.MAX_VALUE.
+     * @param index   индекс, на который будет добавлен элемент.
+     * @param element элемент, который будет добавлен в этот список.
+     * @throws ArrayIndexOutOfBoundsException если вместимость может превысить Integer.MAX_VALUE.
+     * @throws IndexOutOfBoundsException      если индекс выходит за пределы диапазона (index < 0 || index >= size())
      */
     public void add(int index, E element) {
         Objects.checkIndex(index, size);
@@ -70,7 +71,7 @@ public class MyArrayList<E> implements MyList<E> {
     /**
      * Проверяет возможность добавить новый элемент в этот список.
      *
-     * @param minCapacity – необходимая минимальная емкость.
+     * @param minCapacity необходимая минимальная емкость.
      */
     private void checkCapacity(int minCapacity) {
         long checkSize = minCapacity;
@@ -86,7 +87,7 @@ public class MyArrayList<E> implements MyList<E> {
      * Увеличивает емкость, чтобы гарантировать, что она может содержать как минимум количество элементов,
      * указанное аргументом минимальной емкости.
      *
-     * @param minCapacity – необходимая минимальная емкость.
+     * @param minCapacity необходимая минимальная емкость.
      */
     private void increasedCapacity(int minCapacity) {
         int oldCapacity = elements.length;
@@ -100,9 +101,9 @@ public class MyArrayList<E> implements MyList<E> {
     /**
      * Возвращает элемент в указанной позиции в этом списке.
      *
-     * @param index – индекс возвращаемого элемента.
-     * @return - элемент в указанной позиции в этом списке.
-     * @throws IndexOutOfBoundsException – если индекс выходит за пределы диапазона (index < 0 || index >= size())
+     * @param index индекс возвращаемого элемента.
+     * @return элемент в указанной позиции в этом списке.
+     * @throws IndexOutOfBoundsException если индекс выходит за пределы диапазона (index < 0 || index >= size())
      */
     @Override
     public E get(int index) {
@@ -112,11 +113,11 @@ public class MyArrayList<E> implements MyList<E> {
 
     /**
      * Возвращает первое вхождение указанного элемента из этого списка, если оно присутствует,
-     * если элемент отсутствует в этом списке, вернет null.
+     * если элемент отсутствует в этом списке, вернет null. Вернет исключение при поиске null элемента.
      *
-     * @param element - элемент, который нужно найти в этом списке, если он присутствует.
-     * @return - первое вхождение указанного элемента из этого списка.
-     * @throws NullPointerException - если указанная ссылка на объект равна нулю.
+     * @param element элемент, который нужно найти в этом списке, если он присутствует.
+     * @return первое вхождение указанного элемента из этого списка.
+     * @throws NullPointerException если указанная ссылка на объект равна null.
      */
     public E get(E element) {
         Objects.requireNonNull(element);
@@ -135,8 +136,8 @@ public class MyArrayList<E> implements MyList<E> {
      * Удаляет первое вхождение указанного элемента из этого списка, если оно присутствует.
      * Если список не содержит элемента, он не изменяется.
      *
-     * @param element - элемент, который нужно удалить из этого списка, если он присутствует
-     * @return - true, если этот список содержит указанный элемент
+     * @param element элемент, который нужно удалить из этого списка, если он присутствует
+     * @return true, если этот список содержит указанный элемент
      * (или, что, то же самое, если этот список изменился в результате вызова).
      */
     public boolean remove(E element) {
@@ -183,7 +184,7 @@ public class MyArrayList<E> implements MyList<E> {
      * @param index   индекс элемента для замены
      * @param element элемент, который будет сохранен в указанной позиции
      * @return элемент, ранее находившийся в указанной позиции
-     * @throws IndexOutOfBoundsException - если индекс выходит за пределы диапазона (индекс < 0 || индекс >= размер())
+     * @throws IndexOutOfBoundsException если индекс выходит за пределы диапазона (индекс < 0 || индекс >= размер())
      */
     public E set(int index, E element) {
         Objects.checkIndex(index, size);
@@ -195,7 +196,7 @@ public class MyArrayList<E> implements MyList<E> {
     /**
      * Проверяет количество элементов в этом списке.
      *
-     * @return - количество элементов в этом списке.
+     * @return количество элементов в этом списке.
      */
     public int size() {
         return size;
@@ -204,14 +205,14 @@ public class MyArrayList<E> implements MyList<E> {
     /**
      * Проверяет отсутствие элементов в этом списке.
      *
-     * @return - true, если этот список не содержит элементов.
+     * @return true, если этот список не содержит элементов.
      */
     public boolean isEmpty() {
         return size == 0;
     }
 
     /**
-     * Сортирует указанный диапазон этого списка объектов в порядке возрастания
+     * Сортирует указанный диапазон этого списка объектов
      * в соответствии с указанным Comparator'ом.
      * Если fromIndex>=toIndex, диапазон для сортировки пуст.
      * Все элементы в этом диапазоне должны быть взаимно сопоставимы
@@ -220,13 +221,13 @@ public class MyArrayList<E> implements MyList<E> {
      * <p>
      * Для сортировки используется алгоритм быстрой сортировки.
      *
-     * @param fromIndex  - начальный индекс диапазона сортировки(включительно).
-     * @param toIndex    - конечный индекс диапазона сортировки(включительно).
-     * @param comparator - Comparator для определения сортировки этого списка.
-     * @throws ClassCastException             — если массив содержит элементы,
+     * @param fromIndex  начальный индекс диапазона сортировки(включительно).
+     * @param toIndex    конечный индекс диапазона сортировки(включительно).
+     * @param comparator Comparator для определения сортировки этого списка.
+     * @throws ClassCastException             если массив содержит элементы,
      *                                        которые не являются взаимно сопоставимыми (например, строки и целые числа).
-     * @throws ArrayIndexOutOfBoundsException - если указанные индексы выходят за границы этого списка.
-     * @throws IllegalArgumentException       - если fromIndex > toIndex.
+     * @throws ArrayIndexOutOfBoundsException если указанные индексы выходят за границы этого списка.
+     * @throws IllegalArgumentException       если fromIndex > toIndex.
      */
 
     @Override
@@ -255,12 +256,12 @@ public class MyArrayList<E> implements MyList<E> {
      * <p>
      * Для сортировки используется алгоритм быстрой сортировки.
      *
-     * @param fromIndex - начальный индекс диапазона сортировки(включительно).
-     * @param toIndex   - конечный индекс диапазона сортировки(включительно).
-     * @throws ClassCastException             — если массив содержит элементы,
+     * @param fromIndex начальный индекс диапазона сортировки(включительно).
+     * @param toIndex   конечный индекс диапазона сортировки(включительно).
+     * @throws ClassCastException             если массив содержит элементы,
      *                                        которые не являются взаимно сопоставимыми (например, строки и целые числа).
-     * @throws ArrayIndexOutOfBoundsException - если указанные индексы выходят за границы этого списка.
-     * @throws IllegalArgumentException       - если fromIndex > toIndex.
+     * @throws ArrayIndexOutOfBoundsException если указанные индексы выходят за границы этого списка.
+     * @throws IllegalArgumentException       если fromIndex > toIndex.
      */
     @Override
     public void sort(int fromIndex, int toIndex) {
@@ -333,8 +334,9 @@ public class MyArrayList<E> implements MyList<E> {
      * оба списка имеют одинаковый размер и все соответствующие пары элементов в двух списках равны.
      * (Два элемента e1 и e2 равны, если Objects.equals(e1, e2).)
      * Другими словами, два списка считаются равными, если они содержат одни и те же элементы в одном и том же порядке.
-     * @param o - объект для сравнения
-     * @return - true, если переданный объект и этот список равны.
+     *
+     * @param o объект для сравнения
+     * @return true, если переданный объект и этот список равны.
      */
 
     @Override
@@ -347,7 +349,8 @@ public class MyArrayList<E> implements MyList<E> {
 
     /**
      * Возвращает значение хэш-кода для этого списка.
-     * @return - значение хэш-кода для этого списка.
+     *
+     * @return значение хэш-кода для этого списка.
      */
     @Override
     public int hashCode() {
@@ -361,7 +364,8 @@ public class MyArrayList<E> implements MyList<E> {
      * Строковое представление состоит из списка элементов коллекции в том порядке, в котором они хранятся в списке,
      * заключенного в фигурные скобки («{}»). Соседние элементы разделяются символами ", " (запятая и пробел).
      * Элементы преобразуются в строки, как с помощью StringBuilder.
-     * @return - строковое представление этой коллекции.
+     *
+     * @return строковое представление этой коллекции.
      */
     @Override
     public String toString() {
