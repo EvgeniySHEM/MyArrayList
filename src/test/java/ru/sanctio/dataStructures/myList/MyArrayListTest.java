@@ -71,6 +71,10 @@ class MyArrayListTest {
         list.add(0, 15);
 
         assertEquals(15, list.get(0));
+    }
+
+    @Test
+    void itemsShouldBeAddedToTheSpecifiedIndex() {
         MyArrayList<Object> objectMyArrayList = new MyArrayList<>();
         for (int i = 0; i < 1000; i++) {
             objectMyArrayList.add(0, new Object());
@@ -159,7 +163,19 @@ class MyArrayListTest {
         for (int i = 9; i < 10000; i++) {
             assertTrue(list.remove(Integer.valueOf(i)));
         }
-        System.out.println(list);
+    }
+
+    @Test
+    void shouldBeDeletedTheFirstOccurrenceOfTheNull() {
+        for (int i = 0; i < 10000; i++) {
+            objectMyArrayList.add(null);
+        }
+
+        for (int i = 0; i < 10000; i++) {
+            assertTrue(objectMyArrayList.remove(null));
+        }
+
+        assertEquals(0, objectMyArrayList.size());
     }
 
     @Test
@@ -212,6 +228,19 @@ class MyArrayListTest {
         list.set(0, 5);
 
         assertEquals(5, list.get(0));
+    }
+
+    @Test
+    void shouldThrowAnIndexOutOfBoundsExceptionWhenSetIndexEqualOrMoreSize() {
+        int size = list.size();
+
+        assertThrows(IndexOutOfBoundsException.class, () -> list.set(size, 4));
+    }
+
+    @Test
+    void shouldThrowAnIndexOutOfBoundsExceptionWhenSetIndexLessZero() {
+
+        assertThrows(IndexOutOfBoundsException.class, () -> list.set(-1, 4));
     }
 
     @Test
