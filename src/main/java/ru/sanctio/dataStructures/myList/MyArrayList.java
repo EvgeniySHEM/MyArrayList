@@ -1,9 +1,6 @@
 package ru.sanctio.dataStructures.myList;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -58,10 +55,13 @@ public class MyArrayList<E> implements MyList<E> {
      * @param index   индекс, на который будет добавлен элемент.
      * @param element элемент, который будет добавлен в этот список.
      * @throws ArrayIndexOutOfBoundsException если вместимость может превысить Integer.MAX_VALUE.
-     * @throws IndexOutOfBoundsException      если индекс выходит за пределы диапазона (index < 0 || index >= size())
+     * @throws IndexOutOfBoundsException      если индекс выходит за пределы диапазона (index < 0 || index > size())
      */
     public void add(int index, E element) {
-        Objects.checkIndex(index, size);
+        if(index < 0 || index > size) {
+            throw new IndexOutOfBoundsException("Index: " + index +
+                    "out of bounds for length: " + size);
+        }
         checkCapacity(size);
         System.arraycopy(elements, index, elements, index + 1, size - index);
         elements[index] = element;

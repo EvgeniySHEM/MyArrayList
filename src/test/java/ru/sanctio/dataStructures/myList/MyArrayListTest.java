@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MyArrayListTest {
     private MyList<Integer> list;
+    private MyArrayList<Object> objectMyArrayList;
 
     @BeforeEach
     void createNewList() {
@@ -21,13 +22,37 @@ class MyArrayListTest {
         list.add(8);
         list.add(5);
         list.add(4);
+
+        objectMyArrayList = new MyArrayList<>();
     }
 
     @Test
     void elementShouldBeAddedToTheEnd() {
-        for (int i = 0; i < 10; i++) {
+        list.add(5);
+
+        assertEquals(5, list.get(list.size() - 1));
+    }
+
+    @Test
+    void elementsShouldBeAddedToTheEnd() {
+        for (int i = 0; i < 10000; i++) {
             list.add(i);
-            assertEquals(i, list.get(list.size() - 1));
+        }
+    }
+
+    @Test
+    void capacityShouldBeIncreaseByAdd() {
+        for (int i = 0; i < 1000; i++) {
+            Object[] elements = (Object[]) ReflectionTestUtils.getField(list, "elements");
+            int capacity = elements.length;
+            if(list.size() == capacity) {
+                list.add(i);
+                Object[] elements2 = (Object[]) ReflectionTestUtils.getField(list, "elements");
+                capacity = capacity + (capacity >> 1);
+                assertEquals(capacity, elements2.length);
+                continue;
+            }
+            list.add(i);
         }
     }
 
@@ -46,6 +71,17 @@ class MyArrayListTest {
         list.add(0, 15);
 
         assertEquals(15, list.get(0));
+        MyArrayList<Object> objectMyArrayList = new MyArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            objectMyArrayList.add(0, new Object());
+        }
+    }
+
+    @Test
+    void elementsShouldBeAddedToTheSpecifiedIndex() {
+        for (int i = 0; i < 10000; i++) {
+            objectMyArrayList.add(0, new Object());
+        }
     }
 
     @Test
@@ -57,7 +93,7 @@ class MyArrayListTest {
     void shouldThrowAnIndexOutOfBoundsExceptionWhenIndexMoreSize() {
         int size = list.size();
 
-        assertThrows(IndexOutOfBoundsException.class, () -> list.add(size, 5));
+        assertThrows(IndexOutOfBoundsException.class, () -> list.add(size + 1, 5));
     }
 
     @Test
@@ -66,9 +102,29 @@ class MyArrayListTest {
     }
 
     @Test
+    void shouldBeGetElementsByIndex() {
+        for (int i = 0; i < 10000; i++) {
+            objectMyArrayList.add(new Object());
+            objectMyArrayList.get(i);
+        }
+        for (int i = 9999; i >= 0; i--) {
+            objectMyArrayList.get(i);
+        }
+    }
+
+    @Test
     void ShouldBeReturnFirstOccurrenceSpecifiedElement() {
         Integer value = 2;
+
         assertEquals(2, list.get(value));
+    }
+
+    @Test
+    void ShouldBeReturnFirstOccurrenceSpecifiedElements() {
+        for (int i = 0; i < 10000; i++) {
+            list.add(i);
+            assertEquals(Integer.valueOf(i), list.get(Integer.valueOf(i)));
+        }
     }
 
     @Test
@@ -83,8 +139,27 @@ class MyArrayListTest {
     }
 
     @Test
+    void shouldThrowAnIndexOutOfBoundsExceptionWhenIndexEqualOrMoreSize() {
+        int size = list.size();
+
+        assertThrows(IndexOutOfBoundsException.class, () -> list.get(size));
+    }
+
+    @Test
     void shouldBeDeletedTheFirstOccurrenceOfTheSpecifiedElement() {
         assertTrue(list.remove(2));
+    }
+
+    @Test
+    void shouldBeDeletedTheFirstOccurrenceOfTheSpecifiedElements() {
+        for (int i = 9; i < 10000; i++) {
+            list.add(i);
+        }
+
+        for (int i = 9; i < 10000; i++) {
+            assertTrue(list.remove(Integer.valueOf(i)));
+        }
+        System.out.println(list);
     }
 
     @Test
@@ -93,6 +168,19 @@ class MyArrayListTest {
         list.remove(2);
 
         assertEquals(size - 1, list.size());
+    }
+
+    @Test
+    void sizeShouldDecreaseWhenElementsIsDeleted() {
+        for (int i = 0; i < 10000; i++) {
+            objectMyArrayList.add(i);
+        }
+
+        for (int i = 0; i < 10000; i++) {
+            int size = objectMyArrayList.size();
+            objectMyArrayList.remove(i);
+            assertEquals(size - 1, objectMyArrayList.size());
+        }
     }
 
     @Test
@@ -108,6 +196,18 @@ class MyArrayListTest {
     }
 
     @Test
+    void shouldBeReplaceElementsInTheSpecifiedPosition() {
+        for (int i = 0; i < 10000; i++) {
+            objectMyArrayList.add(i);
+        }
+
+        for (int i = 0; i < 10000; i++) {
+            assertEquals(i, objectMyArrayList.set(i, i + 2));
+            assertEquals(i + 2, objectMyArrayList.get(i));
+        }
+    }
+
+    @Test
     void shouldBeReplaceTheElementInTheSpecifiedPosition() {
         list.set(0, 5);
 
@@ -116,19 +216,32 @@ class MyArrayListTest {
 
     @Test
     void shouldBeReturnTheSizeOfTheList() {
-        assertEquals(8, list.size());
+        for (int i = 0; i < 10000; i++) {
+            assertEquals(i, objectMyArrayList.size());
+            objectMyArrayList.add(i);
+        }
     }
 
     @Test
-    void shouldBeReturnTrueIfListIsEmpty() {
+    void shouldBeReturnTrueIfListIsEmptyAfterCleaning() {
         list.clear();
 
         assertTrue(list.isEmpty());
     }
 
     @Test
+    void shouldBeReturnTrueIfListIsEmptyByInitialCapacityEqualZero() {
+        MyList<Object> myList = new MyArrayList<>(0);
+
+        assertTrue(myList.isEmpty());
+    }
+
+    @Test
     void shouldBeReturnFalseIfListIsNotEmpty() {
-        assertFalse(list.isEmpty());
+        for (int i = 0; i < 10000; i++) {
+            objectMyArrayList.add(i);
+            assertFalse(objectMyArrayList.isEmpty());
+        }
     }
 
     @Test
@@ -148,6 +261,22 @@ class MyArrayListTest {
     }
 
     @Test
+    void listsShouldBeSortedByNonDecreasing() {
+        MyList<Integer> list2 = new MyArrayList<>();
+        for (int i = 1000; i >= -100; i--) {
+            list2.add(i);
+            list2.sort(0, list2.size() - 1);
+        }
+
+        MyList<Integer> list1 = new MyArrayList<>();
+        for (int i = -100; i <= 1000; i++) {
+            list1.add(i);
+        }
+
+        assertEquals(list1, list2);
+    }
+
+    @Test
     void listShouldBeSortedBySpecifiedComparator() {
         MyList<Integer> list2 = new MyArrayList<>();
         list2.add(8);
@@ -161,5 +290,21 @@ class MyArrayListTest {
         list.sort(0, list.size() - 1, (e1, e2) -> e2.compareTo(e1));
 
         assertEquals(list2, list);
+    }
+
+    @Test
+    void listsShouldBeSortedBySpecifiedComparator() {
+        MyList<Integer> list2 = new MyArrayList<>();
+        for (int i = -100; i < 1000; i++) {
+            list2.add(i);
+            list2.sort(0, list2.size() - 1, (e1, e2) -> e2.compareTo(e1));
+        }
+
+        MyList<Integer> list1 = new MyArrayList<>();
+        for (int i = 999; i >= -100; i--) {
+            list1.add(i);
+        }
+
+        assertEquals(list1, list2);
     }
 }
